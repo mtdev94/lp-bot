@@ -7,13 +7,11 @@ import {
   ButtonBuilder,
 } from "discord.js";
 import { LpRunner } from "./lp-runner.js";
+import 'dotenv/config';
 
 const client = new Client({
   intents: [],
 });
-
-const token =
-  "MTExMTk4NzM1MDI4MTY1MDE4Nw.GAGLkB.emjo9Ud2amlnuFnGVla8vNMWtnleqdilCn8mdQ";
 
 const lpRunner = new LpRunner(runnerCallback);
 
@@ -289,4 +287,4 @@ async function runnerCallback(name) {
   }
 }
 
-client.login(token);
+client.login(process.env.TOKEN);
