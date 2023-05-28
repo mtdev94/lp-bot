@@ -1,0 +1,24 @@
+{
+  "name": "getting-started",
+  "version": "1.0.0",
+  "description": "Discord example app",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "register": "node commands/commands.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "MT-Dev",
+  "license": "MIT",
+  "dependencies": {
+    "discord-interactions": "^3.4.0",
+    "discord.js": "^14.11.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.41.0"
+  }
+}
