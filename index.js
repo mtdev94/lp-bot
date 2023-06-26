@@ -17,8 +17,6 @@ const lpRunner = new LpRunner(runnerCallback);
 
 var managerMessage;
 var employeeMessage;
-var embedManagementInteraction;
-var embedEmployeeInteraction;
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
@@ -27,7 +25,7 @@ client.on("ready", () => {
 client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === "invoke-management") {
-      const embed = prepareEmbedManagement(interaction);
+      const embed = prepareEmbedManagement({ interaction: interaction, oldEmbed: null });
 
       interaction
         .reply({
@@ -35,7 +33,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
           components: [prepareButtonsManagement()],
         })
         .then((result) => {
-          managerMessage = result;
+          result.fetch().then((result) => {
+            console.log("invoke-management success", result);
+
+            managerMessage = result;
+          }).catch((err) => {
+            console.log("Fetch ERROR", err);
+          });
         })
         .catch((err) => {});
     }
@@ -49,7 +53,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
           components: [prepareButtonsEmployee()],
         })
         .then((result) => {
-          employeeMessage = result;
+          result.fetch().then((result) => {
+            console.log("invoke-employee success", result);
+
+            employeeMessage = result;
+          }).catch((err) => {
+            console.log("Fetch employeeMessage ERROR", err);
+          });
         })
         .catch((err) => {});
     }
@@ -75,9 +85,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
         username: interaction.user.username,
       });
 
-      const exampleEmbed = prepareEmbedEmployees(interaction);
+      const embed = prepareEmbedEmployees(interaction);
       await interaction.update({
-        embeds: [exampleEmbed],
+        embeds: [embed],
         components: [prepareButtonsEmployee()],
       });
     }
@@ -144,14 +154,26 @@ function prepareButtonsManagement() {
   return row;
 }
 
-function prepareEmbedManagement(interaction) {
-  const builder = new EmbedBuilder();
+function prepareEmbedManagement({ interaction, oldEmbed }) {
+  var builder = {};
   const date = new Date().toDateString();
 
-  embedManagementInteraction = interaction;
+  if (oldEmbed) {
+    builder = EmbedBuilder.from(oldEmbed);
+  } else {
+    builder = new EmbedBuilder();
+    builder.setTimestamp();
+    builder.setColor("Orange")
+
+    if (interaction) {
+      builder.setFooter({
+        text: `${interaction.user.username} Opened the lucky plucker`,
+        iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png?size=256`,
+      });
+    }
+  }
 
   builder
-    .setColor("Orange")
     .setTitle(`LP is ${lpRunner.is_open ? "Open!" : "Closed!"}`)
     .setDescription(
       `Employees clocked in (${lpRunner.employees_clockedIn.size}/3) - ${date}
@@ -175,19 +197,12 @@ function prepareEmbedManagement(interaction) {
     });
   });
 
-  builder.setTimestamp().setFooter({
-    text: `${interaction.user.username} Opened the lucky plucker`,
-    iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png?size=256`,
-  });
-
   return builder;
 }
 
-function prepareEmbedEmployees(interaction) {
+function prepareEmbedEmployees(setTimestamp) {
   const builder = new EmbedBuilder();
   const date = new Date().toDateString();
-
-  embedEmployeeInteraction = interaction;
 
   builder
     .setColor("Orange")
@@ -209,7 +224,9 @@ function prepareEmbedEmployees(interaction) {
     });
   });
 
-  builder.setTimestamp();
+  if (setTimestamp) {
+    builder.setTimestamp();
+  }
 
   return builder;
 }
@@ -267,7 +284,6 @@ async function runnerCallback(name) {
     if (!managerMessage) {
       return;
     }
-    const embed = prepareEmbedManagement(embedManagementInteraction);
 
     await managerMessage.edit({
       embeds: [embed],
