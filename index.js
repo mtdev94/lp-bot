@@ -235,8 +235,6 @@ function prepareReport(interaction) {
   const builder = new EmbedBuilder();
   const date = new Date().toDateString();
 
-  embedManagementInteraction = interaction;
-
   builder
     .setColor("Orange")
     .setTitle(`LP is now closed!`)
