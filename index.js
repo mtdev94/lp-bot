@@ -41,7 +41,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
             console.log("Fetch ERROR", err);
           });
         })
-        .catch((err) => {});
+        .catch((err) => {
+          console.log("invoke-management error", err);
+          interaction.followUp({ content: "An error has occurred", ephemeral: true });
+          return;
+        });
     }
 
     if (interaction.commandName === "invoke-employee") {
@@ -61,7 +65,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
             console.log("Fetch employeeMessage ERROR", err);
           });
         })
-        .catch((err) => {});
+        .catch((err) => {
+          console.log("invoke-employee error", err);
+          interaction.followUp({ content: "An error has occurred", ephemeral: true });
+        });
     }
   }
 
@@ -72,11 +79,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
         username: interaction.user.username,
       });
 
-      const exampleEmbed = prepareEmbedEmployees(interaction);
+      const embed = prepareEmbedEmployees(interaction);
+
       await interaction.update({
-        embeds: [exampleEmbed],
+        embeds: [embed],
         components: [prepareButtonsEmployee()],
       });
+
     }
 
     if (interaction.customId === "clock-out") {
@@ -93,27 +102,62 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 
     if (interaction.customId === "open-lp") {
-      console.log(`coming from \n${interaction.message}`);
       lpRunner.open_lp();
 
-      const exampleEmbed = prepareEmbedManagement(interaction);
-      await interaction.update({
-        embeds: [exampleEmbed],
-        components: [prepareButtonsManagement()],
-      });
+      try {
+        const embed = prepareEmbedManagement({ oldEmbed: managerMessage.embeds[0] });
+        interaction.update({
+          embeds: [embed],
+          components: [prepareButtonsManagement()],
+        }).then(() => {
+          console.log("open-lp success");
+        }).catch((err) => {
+          console.log("open-lp error", err);
+          managerMessage.reoly({ content: "An error has occurred", ephemeral: true });
+        });
+      } catch {
+        interaction.reply({ content: "Something went wrong. Please re-invoke the managament bot (/invoke-management)." })
+      }
     }
 
     if (interaction.customId === "close-lp") {
       lpRunner.close_lp();
 
-      const embed = prepareEmbedManagement(interaction);
-      const report = prepareReport(interaction);
-
-      await managerMessage.delete();
-
-      await interaction.reply({
-        embeds: [report],
-      });
+      try {
+        const embed = prepareEmbedManagement({ oldEmbed: managerMessage.embeds[0] });
+        const report = prepareReport(interaction);
+  
+        client.channels.fetch(managerMessage.channelId).then(async (channel) => {
+          channel.messages.fetch(managerMessage.id).then(async (result) => {
+            result.edit({
+              embeds: [embed],
+              components: [],
+            }).then(() => {
+              console.log("result.edit managerMessage success");
+            }).catch((err) => {
+              console.log(`result.edit error`, err);
+            });
+  
+            result.reply({
+              embeds: [report],
+            }).then(() => {
+              console.log("close-lp success");
+            }).catch((err) => {
+              console.log("close-lp error", err);
+              result.reply({ content: "An error has occurred", ephemeral: true });
+            });
+  
+            interaction.reply({ content: "Closed the restaurant.", ephemeral: true })
+  
+          }).catch((err) => {
+            console.log(`channel.messages.fetch`, err);
+          });
+        }).catch((err) => {
+          console.log(`client.channels.fetch`, err);
+        });;
+      } catch (error) {
+        interaction.reply({ content: "Something went wrong. Please re-invoke the managament bot (/invoke-management)." })
+      }
     }
   }
 });
@@ -183,16 +227,15 @@ function prepareEmbedManagement({ interaction, oldEmbed }) {
   lpRunner.employees.forEach((e) => {
     builder.addFields({
       name: `${e.username} - ${e.tickets} ticket(s)`,
-      value: `${
-        e.clocked_in
-          ? `${e.date.toLocaleString("en-US", {
-              timeZone: "America/New_York",
-              hour: "numeric",
-              minute: "numeric",
-              hour12: true,
-            })} EST`
-          : "Not clocked-in"
-      }`,
+      value: `${e.clocked_in
+        ? `${e.date.toLocaleString("en-US", {
+          timeZone: "America/New_York",
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        })} EST`
+        : "Not clocked-in"
+        }`,
       inline: true,
     });
   });
@@ -202,7 +245,6 @@ function prepareEmbedManagement({ interaction, oldEmbed }) {
 
 function prepareEmbedEmployees(setTimestamp) {
   const builder = new EmbedBuilder();
-  const date = new Date().toDateString();
 
   builder
     .setColor("Orange")
@@ -233,7 +275,6 @@ function prepareEmbedEmployees(setTimestamp) {
 
 function prepareReport(interaction) {
   const builder = new EmbedBuilder();
-  const date = new Date().toDateString();
 
   builder
     .setColor("Orange")
@@ -253,10 +294,11 @@ function prepareReport(interaction) {
     });
   });
 
-  builder.setTimestamp().setFooter({
-    text: `${interaction.user.username} Opened the lucky plucker`,
-    iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png?size=256`,
-  });
+  builder
+    .setFooter({
+      text: `${interaction.user.username} Opened the lucky plucker`,
+      iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png?size=256`,
+    });
 
   return builder;
 }
@@ -268,10 +310,22 @@ async function runnerCallback(name) {
     }
     const embed = prepareEmbedEmployees();
 
-    await employeeMessage.edit({
-      embeds: [embed],
-      components: [prepareButtonsEmployee()],
-    });
+    client.channels.fetch(employeeMessage.channelId).then(async (channel) => {
+      channel.messages.fetch(employeeMessage.id).then(async (result) => {
+        result.edit({
+          embeds: [embed],
+          components: [prepareButtonsEmployee()]
+        }).then(() => {
+          console.log("result.edit employee success");
+        }).catch((err) => {
+          console.log(`result.edit error ${name}`, err);
+        });
+      }).catch((err) => {
+        console.log(`channel.messages.fetch ${name}`, err);
+      });
+    }).catch((err) => {
+      console.log(`client.channels.fetch ${name}`, err);
+    });;
   }
 
   if (
@@ -283,10 +337,24 @@ async function runnerCallback(name) {
       return;
     }
 
-    await managerMessage.edit({
-      embeds: [embed],
-      components: [prepareButtonsManagement()],
-    });
+    client.channels.fetch(managerMessage.channelId).then(async (channel) => {
+      channel.messages.fetch(managerMessage.id).then(async (result) => {
+        const embed = prepareEmbedManagement({ oldEmbed: result.embeds[0] });
+
+        result.edit({
+          embeds: [embed],
+          components: [prepareButtonsManagement()],
+        }).then(() => {
+          console.log("result.edit management success");
+        }).catch((err) => {
+          console.log(`result.edit management ${name}`, err);
+        });
+      }).catch((err) => {
+        console.log(`channel.messages.fetch management ${name}`, err);
+      });
+    }).catch((err) => {
+      console.log(`client.channels.fetch management ${name}`, err);
+    });;
 
     if (!employeeMessage) {
       return;
@@ -294,10 +362,23 @@ async function runnerCallback(name) {
 
     const embedEmployee = prepareEmbedEmployees();
 
-    await employeeMessage.edit({
-      embeds: [embedEmployee],
-      components: [prepareButtonsEmployee()],
-    });
+    client.channels.fetch(employeeMessage.channelId).then(async (channel) => {
+
+      channel.messages.fetch(employeeMessage.id).then(async (result) => {
+        result.edit({
+          embeds: [embedEmployee],
+          components: [prepareButtonsEmployee()],
+        }).then(() => {
+          console.log("result.edit employee success");
+        }).catch((err) => {
+          console.log(`result.edit error employee ${name}`, err);
+        });
+      }).catch((err) => {
+        console.log(`channel.messages.fetch employee ${name}`, err);
+      });
+    }).catch((err) => {
+      console.log(`client.channels.fetch employee ${name}`, err);
+    });;
   }
 }
 
