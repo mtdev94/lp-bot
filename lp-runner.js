@@ -66,8 +66,8 @@ export class LpRunner {
   }
 
   clockEmployeeOut(employee) {
-    if (!this.is_open) {
-      return;
+    if (!this.is_open || this.employees.get(employee.id) == null) {
+      return
     }
     this.employees.get(employee.id).clocked_in = false;
     console.log(`${employee.id} is now clocked out`);
