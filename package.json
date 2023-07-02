@@ -5,9 +5,10 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "register": "node commands/commands.js",
-    "dev": "nodemon index.js"
+    "start": "node bin/index.js",
+    "register": "node bin/commands.js",
+    "build": "tsc -b -v",
+    "dev": "nodemon bin/index.js"
   },
   "author": "MT-Dev",
   "license": "MIT",
@@ -19,6 +20,9 @@
     "node-fetch": "^3.3.1"
   },
   "devDependencies": {
-    "eslint": "^8.41.0"
+    "@types/eslint": "^8.40.2",
+    "@types/express": "^4.17.17",
+    "eslint": "^8.41.0",
+    "ts-node": "^10.9.1"
   }
 }
