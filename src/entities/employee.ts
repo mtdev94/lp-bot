@@ -1,5 +1,5 @@
 
-class Employee {
+export class Employee {
     id: string;
     lastClockIn: Date;
     username: string;
@@ -7,7 +7,6 @@ class Employee {
     tickets: number;
     lastTicket: Date;
     timeElapsed?: number;
-
 
     constructor(id: string, lastClockIn: Date, username: string, clockedIn: boolean, tickets: number, lastTicket: Date) {
         this.id = id;
@@ -18,3 +17,5 @@ class Employee {
         this.lastTicket = lastTicket;
     }
 }
+
+export default Employee;

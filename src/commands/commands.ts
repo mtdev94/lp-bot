@@ -1,19 +1,20 @@
 import "dotenv/config";
-import { InstallGlobalCommands } from "../utils";
+import { ChatInputApplicationCommandData } from "discord.js";
 
+export interface Command extends ChatInputApplicationCommandData {}
 
-const LP_EMPLOYEE = {
+export const LP_EMPLOYEE: Command = {
     name: "invoke-employee",
     description: "Invoke the LP-Bot in an employee channel",
     type: 1,
 }
 
-const LP_MANAGEMENT = {
+export const LP_MANAGEMENT: Command = {
     name: "invoke-management",
     description: "Invoke the LP-Bot in a management channel",
     type: 1,
 }
 
-const ALL_COMMANDS = [LP_EMPLOYEE, LP_MANAGEMENT];
+export let interactionCommands: ChatInputApplicationCommandData[] = [LP_EMPLOYEE, LP_MANAGEMENT];
 
-InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
+export default interactionCommands;

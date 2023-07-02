@@ -1,12 +1,14 @@
 import { User } from "discord.js";
+import { Establishment } from "./entities/establishment";
+import Employee from "./entities/employee";
+import State from "./entities/state";
 
-class LpRunner {
+export class LpRunner {
   onEvent: (event: string) => void;
   establishment: Establishment;
   maxEmployees: number;
-  ticketThreshold: number = 150;
+  ticketThreshold: number = 5;
   timer?: NodeJS.Timer;
-
 
   constructor(establishment: Establishment, maxEmployees: number, callback: (event: string) => void) {
     this.establishment = establishment;
@@ -18,6 +20,10 @@ class LpRunner {
     console.log("Opening LP");
     this.establishment.ticketsGenerated = 0;
     this.establishment.state = State.open;
+    this.establishment.employees.forEach((employee) => {
+      employee.tickets = 0;
+      employee.timeElapsed = 0;
+    });
 
     this.StartTimer();
     this.onEvent("open_lp");
@@ -27,7 +33,7 @@ class LpRunner {
     console.log("Closing LP");
 
     this.establishment.state = State.closed;
-    this.establishment.employees.forEach((employee, employeeId) => {
+    this.establishment.employees.forEach((employee) => {
       employee.clockedIn = false;
     });
 

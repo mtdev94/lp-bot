@@ -8,14 +8,15 @@ import {
   Message,
   Interaction,
   Embed,
-  ChannelType,
-  Channel,
   TextChannel,
-  MessagePayload,
 } from "discord.js";
 
 import 'dotenv/config';
 import LpRunner from "./lp-runner";
+import Establishment from "./entities/establishment";
+import State from "./entities/state";
+import commands from "./commands/commands";
+
 
 const client = new Client({
   intents: [],
@@ -28,7 +29,8 @@ const lpRunner = new LpRunner(establishment, 3, runnerCallback);
 var managerMessage: Message<boolean>;
 var employeeMessage: Message<boolean>;
 
-client.on("ready", () => {
+client.on("ready", async (client) => {
+  await client.application.commands.set(commands);
   console.log(`Logged in as ${client.user?.tag}`);
 });
 
@@ -109,7 +111,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
       lpRunner.OpenLP();
 
       try {
-        const embed = PrepareEmbedManagement(undefined, managerMessage.embeds[0]);
+        const embed = PrepareEmbedManagement(undefined, undefined);
         interaction.update({
           embeds: [embed],
           components: [PrepareButtonsManagement()],
@@ -217,6 +219,7 @@ function PrepareEmbedManagement(interaction?: Interaction, oldEmbed?: Embed) {
 
   if (oldEmbed != null) {
     builder = EmbedBuilder.from(oldEmbed);
+    builder.setFields([]);
   } else {
     builder = new EmbedBuilder();
     builder.setTimestamp();
@@ -286,7 +289,7 @@ function PrepareEmbedEmployees(setTimestamp: boolean) {
   return builder;
 }
 
-function prepareReport(interaction: Interaction) {
+function prepareReport(interaction: Interaction): EmbedBuilder {
   const builder = new EmbedBuilder();
 
   builder
@@ -300,7 +303,7 @@ function prepareReport(interaction: Interaction) {
   });
 
   lpRunner.establishment.employees.forEach((e) => {
-    if (e.timeElapsed) {
+    if (e.timeElapsed != null) {
       builder.addFields({
         name: e.username,
         value: `${e.timeElapsed} minute(s) - ${e.tickets} ticket(s)`,
@@ -311,7 +314,7 @@ function prepareReport(interaction: Interaction) {
 
   builder
     .setFooter({
-      text: `${interaction.user.username} Opened the lucky plucker`,
+      text: `${interaction.user.username} Closed the lucky plucker`,
       iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png?size=256`,
     });
 

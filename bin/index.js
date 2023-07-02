@@ -15,17 +15,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 require("dotenv/config");
 const lp_runner_1 = __importDefault(require("./lp-runner"));
+const establishment_1 = __importDefault(require("./entities/establishment"));
+const state_1 = __importDefault(require("./entities/state"));
+const commands_1 = __importDefault(require("./commands/commands"));
 const client = new discord_js_1.Client({
     intents: [],
 });
-const establishment = new Establishment("LP", "LuckyPlucker", State.closed, new Map(), 0);
+const establishment = new establishment_1.default("LP", "LuckyPlucker", state_1.default.closed, new Map(), 0);
 const lpRunner = new lp_runner_1.default(establishment, 3, runnerCallback);
 var managerMessage;
 var employeeMessage;
-client.on("ready", () => {
+client.on("ready", (client) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
+    yield client.application.commands.set(commands_1.default);
     console.log(`Logged in as ${(_a = client.user) === null || _a === void 0 ? void 0 : _a.tag}`);
-});
+}));
 client.on(discord_js_1.Events.InteractionCreate, (interaction) => __awaiter(void 0, void 0, void 0, function* () {
     if (interaction.isChatInputCommand()) {
         if (interaction.commandName === "invoke-management") {
@@ -90,7 +94,7 @@ client.on(discord_js_1.Events.InteractionCreate, (interaction) => __awaiter(void
         if (interaction.customId === "open-lp") {
             lpRunner.OpenLP();
             try {
-                const embed = PrepareEmbedManagement(undefined, managerMessage.embeds[0]);
+                const embed = PrepareEmbedManagement(undefined, undefined);
                 interaction.update({
                     embeds: [embed],
                     components: [PrepareButtonsManagement()],
@@ -101,7 +105,7 @@ client.on(discord_js_1.Events.InteractionCreate, (interaction) => __awaiter(void
                     managerMessage.reply({ content: "An error has occurred" });
                 });
             }
-            catch (_a) {
+            catch (_b) {
                 interaction.reply({ content: "Something went wrong. Please re-invoke the managament bot (/invoke-management)." });
             }
         }
@@ -155,12 +159,12 @@ function PrepareButtonsEmployee() {
         .setCustomId("clock-in")
         .setLabel("Clock In")
         .setStyle(discord_js_1.ButtonStyle.Success)
-        .setDisabled(lpRunner.establishment.state == State.closed);
+        .setDisabled(lpRunner.establishment.state == state_1.default.closed);
     const cancel = new discord_js_1.ButtonBuilder()
         .setCustomId("clock-out")
         .setLabel("Clock Out")
         .setStyle(discord_js_1.ButtonStyle.Danger)
-        .setDisabled(lpRunner.establishment.state == State.closed);
+        .setDisabled(lpRunner.establishment.state == state_1.default.closed);
     const row = new discord_js_1.ActionRowBuilder().addComponents(confirm, cancel);
     return row;
 }
@@ -169,12 +173,12 @@ function PrepareButtonsManagement() {
         .setCustomId("open-lp")
         .setLabel("Open LP")
         .setStyle(discord_js_1.ButtonStyle.Success)
-        .setDisabled(lpRunner.establishment.state == State.open);
+        .setDisabled(lpRunner.establishment.state == state_1.default.open);
     const cancel = new discord_js_1.ButtonBuilder()
         .setCustomId("close-lp")
         .setLabel("Close LP")
         .setStyle(discord_js_1.ButtonStyle.Danger)
-        .setDisabled(lpRunner.establishment.state == State.closed);
+        .setDisabled(lpRunner.establishment.state == state_1.default.closed);
     const row = new discord_js_1.ActionRowBuilder().addComponents(confirm, cancel);
     return row;
 }
@@ -183,6 +187,7 @@ function PrepareEmbedManagement(interaction, oldEmbed) {
     const date = new Date().toDateString();
     if (oldEmbed != null) {
         builder = discord_js_1.EmbedBuilder.from(oldEmbed);
+        builder.setFields([]);
     }
     else {
         builder = new discord_js_1.EmbedBuilder();
@@ -196,7 +201,7 @@ function PrepareEmbedManagement(interaction, oldEmbed) {
         }
     }
     builder
-        .setTitle(`LP is ${(lpRunner.establishment.state == State.open) ? "Open!" : "Closed!"}`)
+        .setTitle(`LP is ${(lpRunner.establishment.state == state_1.default.open) ? "Open!" : "Closed!"}`)
         .setDescription(`Employees clocked in (${lpRunner.establishment.employees_clockedIn.size}/3) - ${date}
       Tickets generated ${lpRunner.establishment.ticketsGenerated}`);
     lpRunner.establishment.employees.forEach((e) => {
@@ -219,7 +224,7 @@ function PrepareEmbedEmployees(setTimestamp) {
     const builder = new discord_js_1.EmbedBuilder();
     builder
         .setColor("Orange")
-        .setTitle(`LP is ${(lpRunner.establishment.state == State.open) ? "Open" : "Closed"}!`)
+        .setTitle(`LP is ${(lpRunner.establishment.state == state_1.default.open) ? "Open" : "Closed"}!`)
         .setDescription(`Employees clocked in - ${lpRunner.establishment.employees_clockedIn.size}/3`);
     lpRunner.establishment.employees_clockedIn.forEach((e) => {
         builder.addFields({
@@ -249,7 +254,7 @@ function prepareReport(interaction) {
         value: `${lpRunner.establishment.ticketsGenerated}`,
     });
     lpRunner.establishment.employees.forEach((e) => {
-        if (e.timeElapsed) {
+        if (e.timeElapsed != null) {
             builder.addFields({
                 name: e.username,
                 value: `${e.timeElapsed} minute(s) - ${e.tickets} ticket(s)`,

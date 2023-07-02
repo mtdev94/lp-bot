@@ -1,8 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LpRunner = void 0;
+const employee_1 = __importDefault(require("./entities/employee"));
+const state_1 = __importDefault(require("./entities/state"));
 class LpRunner {
     constructor(establishment, maxEmployees, callback) {
-        this.ticketThreshold = 150;
+        this.ticketThreshold = 5;
         this.establishment = establishment;
         this.onEvent = callback;
         this.maxEmployees = maxEmployees;
@@ -10,21 +16,25 @@ class LpRunner {
     OpenLP() {
         console.log("Opening LP");
         this.establishment.ticketsGenerated = 0;
-        this.establishment.state = State.open;
+        this.establishment.state = state_1.default.open;
+        this.establishment.employees.forEach((employee) => {
+            employee.tickets = 0;
+            employee.timeElapsed = 0;
+        });
         this.StartTimer();
         this.onEvent("open_lp");
     }
     CloseLP() {
         console.log("Closing LP");
-        this.establishment.state = State.closed;
-        this.establishment.employees.forEach((employee, employeeId) => {
+        this.establishment.state = state_1.default.closed;
+        this.establishment.employees.forEach((employee) => {
             employee.clockedIn = false;
         });
         this.StopTimer();
         this.onEvent("close_lp");
     }
     HandleClockInButton(user) {
-        if (this.establishment.state == State.closed ||
+        if (this.establishment.state == state_1.default.closed ||
             this.establishment.employees_clockedIn.size >= this.maxEmployees ||
             this.establishment.employees_clockedIn.get(user.id)) {
             return;
@@ -35,13 +45,13 @@ class LpRunner {
             employee.clockedIn = true;
         }
         else {
-            this.establishment.employees.set(user.id, new Employee(user.id, new Date(), user.username, true, 0, new Date()));
+            this.establishment.employees.set(user.id, new employee_1.default(user.id, new Date(), user.username, true, 0, new Date()));
         }
         console.log(`${user.id} is now clocked in`);
         this.onEvent("clockEmployeeIn");
     }
     ClockEmployeeOut(user) {
-        if (this.establishment.state == State.closed || this.establishment.employees.get(user.id) == null) {
+        if (this.establishment.state == state_1.default.closed || this.establishment.employees.get(user.id) == null) {
             return;
         }
         const employee = this.establishment.employees.get(user.id);
@@ -61,7 +71,7 @@ class LpRunner {
         clearInterval(this.timer);
     }
     HandleTimer() {
-        if (this.establishment.state == State.closed) {
+        if (this.establishment.state == state_1.default.closed) {
             return;
         }
         this.establishment.employees.forEach((employee, employeeId) => {
@@ -83,4 +93,5 @@ class LpRunner {
         });
     }
 }
+exports.LpRunner = LpRunner;
 exports.default = LpRunner;

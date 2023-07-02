@@ -1,4 +1,7 @@
-class Establishment {
+import Employee from "./employee";
+import State from "./state";
+
+export class Establishment {
     id: string;
     name: string;
     state: State;
@@ -27,6 +30,4 @@ class Establishment {
 
 }
 
-enum State {
-    open, closed
-}
+export default Establishment;

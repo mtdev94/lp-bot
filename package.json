@@ -1,14 +1,13 @@
 {
-  "name": "getting-started",
+  "name": "lp-bot",
   "version": "1.0.0",
-  "description": "Discord example app",
-  "main": "app.js",
-  "type": "module",
+  "description": "Lucky Plucker bot.",
+  "main": "bin/index.js",
   "scripts": {
     "start": "node bin/index.js",
     "register": "node bin/commands.js",
     "build": "tsc -b -v",
-    "dev": "nodemon bin/index.js"
+    "dev": "nodemon src/index.ts"
   },
   "author": "MT-Dev",
   "license": "MIT",

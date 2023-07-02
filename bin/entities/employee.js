@@ -1,4 +1,6 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Employee = void 0;
 class Employee {
     constructor(id, lastClockIn, username, clockedIn, tickets, lastTicket) {
         this.id = id;
@@ -9,3 +11,5 @@ class Employee {
         this.lastTicket = lastTicket;
     }
 }
+exports.Employee = Employee;
+exports.default = Employee;

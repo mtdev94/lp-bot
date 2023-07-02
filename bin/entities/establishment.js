@@ -1,4 +1,6 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Establishment = void 0;
 class Establishment {
     constructor(id, name, state, employees, ticketsGenerated) {
         this.id = id;
@@ -17,8 +19,5 @@ class Establishment {
         return clockedInEmployees;
     }
 }
-var State;
-(function (State) {
-    State[State["open"] = 0] = "open";
-    State[State["closed"] = 1] = "closed";
-})(State || (State = {}));
+exports.Establishment = Establishment;
+exports.default = Establishment;
