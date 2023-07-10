@@ -7,7 +7,7 @@ export class LpRunner {
   onEvent: (event: string) => void;
   establishment: Establishment;
   maxEmployees: number;
-  ticketThreshold: number = 5;
+  ticketThreshold: number = parseInt(process.env.TIME_THRESHOLD ?? "150") || 150;
   timer?: NodeJS.Timer;
 
   constructor(establishment: Establishment, maxEmployees: number, callback: (event: string) => void) {

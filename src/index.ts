@@ -240,7 +240,7 @@ function PrepareEmbedManagement(interaction?: Interaction, oldEmbed?: Embed) {
       Tickets generated ${lpRunner.establishment.ticketsGenerated}`
     );
 
-  lpRunner.establishment.employees.forEach((e) => {
+  lpRunner.establishment.employees_batch(14).forEach((e) => {
     builder.addFields({
       name: `${e.username} - ${e.tickets} ticket(s)`,
       value: `${e.clockedIn
@@ -302,7 +302,7 @@ function prepareReport(interaction: Interaction): EmbedBuilder {
     value: `${lpRunner.establishment.ticketsGenerated}`,
   });
 
-  lpRunner.establishment.employees.forEach((e) => {
+  lpRunner.establishment.employees_batch(14).forEach((e) => {
     if (e.timeElapsed != null) {
       builder.addFields({
         name: e.username,

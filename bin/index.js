@@ -204,7 +204,7 @@ function PrepareEmbedManagement(interaction, oldEmbed) {
         .setTitle(`LP is ${(lpRunner.establishment.state == state_1.default.open) ? "Open!" : "Closed!"}`)
         .setDescription(`Employees clocked in (${lpRunner.establishment.employees_clockedIn.size}/3) - ${date}
       Tickets generated ${lpRunner.establishment.ticketsGenerated}`);
-    lpRunner.establishment.employees.forEach((e) => {
+    lpRunner.establishment.employees_batch(14).forEach((e) => {
         builder.addFields({
             name: `${e.username} - ${e.tickets} ticket(s)`,
             value: `${e.clockedIn
@@ -253,7 +253,7 @@ function prepareReport(interaction) {
         name: "Total tickets generated",
         value: `${lpRunner.establishment.ticketsGenerated}`,
     });
-    lpRunner.establishment.employees.forEach((e) => {
+    lpRunner.establishment.employees_batch(14).forEach((e) => {
         if (e.timeElapsed != null) {
             builder.addFields({
                 name: e.username,

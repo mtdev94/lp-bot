@@ -5,6 +5,4 @@ services:
       context: ./
     command: npm run start
     environment:
-       - TOKEN=${TOKEN}
-    ports:
-      - "3000:3000"
+      - TOKEN=${TOKEN}
