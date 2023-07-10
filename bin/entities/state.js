@@ -5,5 +5,5 @@ var State;
 (function (State) {
     State[State["open"] = 0] = "open";
     State[State["closed"] = 1] = "closed";
-})(State = exports.State || (exports.State = {}));
+})(State || (exports.State = State = {}));
 exports.default = State;
