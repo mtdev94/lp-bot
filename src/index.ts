@@ -241,11 +241,11 @@ function PrepareEmbedManagement(interaction?: Interaction, oldEmbed?: Embed) {
     );
 
 
-  lpRunner.establishment.employees_batch(14).forEach((e) => {
+  lpRunner.establishment.employees_batch(14).forEach((employee, id) => {
     builder.addFields({
-      name: `${e[1].username} - ${e[1].tickets} ticket(s)`,
-      value: `${e[1].clockedIn
-        ? `${e[1].lastClockIn.toLocaleString("en-US", {
+      name: `${employee.username} - ${employee.tickets} ticket(s)`,
+      value: `${employee.clockedIn
+        ? `${employee.lastClockIn.toLocaleString("en-US", {
           timeZone: "America/New_York",
           hour: "numeric",
           minute: "numeric",
