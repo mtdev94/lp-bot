@@ -4,4 +4,4 @@ services:
     build: .
     command: npm run start
     environment:
-       - TOKEN=MTExODkxNjUxODI2MTAzNTA2OQ.GzXxnV.8Kf-BOXrLoIDuFFj8-j13u6uM5UeNsSGBhRQws
+       - TOKEN=${TOKEN}
