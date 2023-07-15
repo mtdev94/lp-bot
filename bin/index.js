@@ -264,7 +264,7 @@ function prepareReport(interaction) {
     });
     builder
         .setFooter({
-        text: `${interaction.user.username} Opened the lucky plucker`,
+        text: `${interaction.user.username} Closed the lucky plucker`,
         iconURL: `https://cdn.discordapp.com/avatars/${interaction.user.id}/${interaction.user.avatar}.png?size=256`,
     });
     return builder;

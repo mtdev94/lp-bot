@@ -240,11 +240,16 @@ function PrepareEmbedManagement(interaction?: Interaction, oldEmbed?: Embed) {
       Tickets generated ${lpRunner.establishment.ticketsGenerated}`
     );
 
-  lpRunner.establishment.employees.forEach((e) => {
+    var employees = Array.from(lpRunner.establishment.employees);
+
+    employees = employees.sort((a, b) => a[1].lastClockIn.getTime() - b[1].lastClockIn.getTime());
+    employees = employees.slice(0, 20);
+
+    employees.forEach((e) => {
     builder.addFields({
-      name: `${e.username} - ${e.tickets} ticket(s)`,
-      value: `${e.clockedIn
-        ? `${e.lastClockIn.toLocaleString("en-US", {
+      name: `${e[1].username} - ${e[1].tickets} ticket(s)`,
+      value: `${e[1].clockedIn
+        ? `${e[1].lastClockIn.toLocaleString("en-US", {
           timeZone: "America/New_York",
           hour: "numeric",
           minute: "numeric",
@@ -417,5 +422,5 @@ async function runnerCallback(name: string) {
     });;
   }
 }
-
+console.log(process.env.TOKEN);
 client.login(process.env.TOKEN);

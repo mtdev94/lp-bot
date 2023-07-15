@@ -1,10 +1,7 @@
 version: '3.8'
 services:
   app:
-    build:
-      context: ./
+    build: .
     command: npm run start
     environment:
-       - TOKEN=${TOKEN}
-    ports:
-      - "3000:3000"
+       - TOKEN=MTExODkxNjUxODI2MTAzNTA2OQ.GzXxnV.8Kf-BOXrLoIDuFFj8-j13u6uM5UeNsSGBhRQws
