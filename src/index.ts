@@ -240,12 +240,8 @@ function PrepareEmbedManagement(interaction?: Interaction, oldEmbed?: Embed) {
       Tickets generated ${lpRunner.establishment.ticketsGenerated}`
     );
 
-    var employees = Array.from(lpRunner.establishment.employees);
 
-    employees = employees.sort((a, b) => a[1].lastClockIn.getTime() - b[1].lastClockIn.getTime());
-    employees = employees.slice(0, 20);
-
-    employees.forEach((e) => {
+  lpRunner.establishment.employees_batch(14).forEach((e) => {
     builder.addFields({
       name: `${e[1].username} - ${e[1].tickets} ticket(s)`,
       value: `${e[1].clockedIn
@@ -307,7 +303,7 @@ function prepareReport(interaction: Interaction): EmbedBuilder {
     value: `${lpRunner.establishment.ticketsGenerated}`,
   });
 
-  lpRunner.establishment.employees.forEach((e) => {
+  lpRunner.establishment.employees_batch(14).forEach((e) => {
     if (e.timeElapsed != null) {
       builder.addFields({
         name: e.username,
@@ -422,5 +418,4 @@ async function runnerCallback(name: string) {
     });;
   }
 }
-console.log(process.env.TOKEN);
 client.login(process.env.TOKEN);
