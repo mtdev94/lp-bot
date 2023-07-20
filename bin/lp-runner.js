@@ -8,7 +8,8 @@ const employee_1 = __importDefault(require("./entities/employee"));
 const state_1 = __importDefault(require("./entities/state"));
 class LpRunner {
     constructor(establishment, maxEmployees, callback) {
-        this.ticketThreshold = 5;
+        var _a;
+        this.ticketThreshold = parseInt((_a = process.env.TIME_THRESHOLD) !== null && _a !== void 0 ? _a : "150") || 150;
         this.establishment = establishment;
         this.onEvent = callback;
         this.maxEmployees = maxEmployees;

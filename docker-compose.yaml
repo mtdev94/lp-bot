@@ -1,10 +1,8 @@
 version: '3.8'
 services:
   app:
-    build:
-      context: ./
+    build: .
+    image: lpbotcontainer.azurecr.io/lp-bot-main-app:latest
     command: npm run start
     environment:
        - TOKEN=${TOKEN}
-    ports:
-      - "3000:3000"

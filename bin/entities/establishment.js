@@ -18,6 +18,10 @@ class Establishment {
         });
         return clockedInEmployees;
     }
+    employees_batch(size) {
+        const arrayTemp = Array.from(this.employees).sort((e1, e2) => e1[1].lastClockIn.getTime() - e2[1].lastClockIn.getTime()).slice(0, size);
+        return new Map(arrayTemp);
+    }
 }
 exports.Establishment = Establishment;
 exports.default = Establishment;
