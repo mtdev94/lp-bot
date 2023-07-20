@@ -253,7 +253,7 @@ function prepareReport(interaction) {
         name: "Total tickets generated",
         value: `${lpRunner.establishment.ticketsGenerated}`,
     });
-    lpRunner.establishment.employees_batch(15).forEach((e) => {
+    lpRunner.establishment.employees_batch(14).forEach((e) => {
         if (e.timeElapsed != null) {
             builder.addFields({
                 name: e.username,
